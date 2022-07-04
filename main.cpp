@@ -6,11 +6,15 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <string>
+#include "Request.hpp"
+#include "Response.hpp"
 
 int main()
 {
     int clientSocket;
     int bytesRecv;
+    Request req;
+    Response rep;
     std::cout << "Creating server socket..." << std::endl;
     int listening = socket(AF_INET, SOCK_STREAM, 0);
     if (listening == -1)
@@ -65,13 +69,13 @@ int main()
         std::cout << "-------------------Received--------------------\n" << buf << "\n";
 
         //Parse request
-        //Request req(buf);
+        req.fill_request(buf);
 
         //Create response
-        //Response res(req);
+        rep.fill_response(req);
 
         // return message
-        write(clientSocket, buf, bytesRecv);
+        write(clientSocket, rep.res_to_str().c_str(), bytesRecv);
 
         // close socket
         close(clientSocket);
