@@ -2,6 +2,8 @@
 #define RESPONSE_HPP
 
 #include <string.h>
+#include <iostream>
+#include <fstream>
 #include <string>
 #include "Request.hpp"
 
