@@ -16,9 +16,9 @@ class Response {
         std::string res_to_str() const;
     private:
         std::string method;
-        std::string status_code;
+        int code;
         std::string content_type;
-        std::string content_length;
+        int content_length;
         std::string body;
 };
 

@@ -3,6 +3,7 @@
 
 #include <string.h>
 #include <string>
+#include <iostream>
 
 class Request {
     public:
