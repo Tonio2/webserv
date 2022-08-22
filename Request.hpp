@@ -337,59 +337,6 @@ class Request {
                 exit(0);
         }
 
-        // void exec_cgi() {
-        //     init_env();
-        //     char **env = format_env();
-
-        //     int			initial_stdin = dup(0);
-        //     int			initial_stdout = dup(1);
-        //     FILE		*tmpfile_in = tmpfile();
-        //     _tmpfile_out = tmpfile();
-        //     int 		fd_in = fileno(tmpfile_in);
-        //     _fd_out = fileno(_tmpfile_out);
-
-        //     write(fd_in, _req_body.c_str(), _req_body.size());
-	    //     lseek(fd_in, 0, SEEK_SET);
-
-        //     pid_t pid = fork();
-
-        //     if (pid == -1)
-        //     {
-        //         std::cerr << "fork crashed" << "\n";
-        //         throw 500;
-        //     }
-        //     else if (!pid)
-        //     {
-        //         char *argv[] = {const_cast<char *>(_cgi_path.c_str()), 0};
-        //         // char *argv_upload[] = {const_cast<char *>("/Users/alabalet/.brew/bin/python3"), 0};
-
-        //         dup2(fd_in, STDIN_FILENO);
-        //         dup2(_fd_out, STDOUT_FILENO);
-        //         // if (req.get_location() == "/test/upload.py")
-        //         //     execve("/Users/alabalet/.brew/bin/python3", argv_upload, env);
-        //         // else
-        //         execve(_cgi_path.c_str(), argv, env);
-        //         write(STDOUT_FILENO, "Status: 500\r\n\r\n", 15);
-        //     }
-
-        //     dup2(initial_stdin, STDIN_FILENO);
-        //     dup2(initial_stdout, STDOUT_FILENO);
-        //     close(initial_stdin);
-        //     close(initial_stdout);
-        //     fclose(tmpfile_in);
-        //     close(fd_in);
-        //     // fclose(tmpfile_out);
-        //     // close(fd_out);
-            
-
-        //     for (size_t i = 0; env[i]; i++)
-        //         delete[] env[i];
-        //     delete[] env;
-
-        //     if (!pid)
-        //         exit(0);
-        // }
-
         void generate_autoindex(std::string location) {
             std::string dirName(location);
             DIR *dir = opendir(location.c_str());
@@ -424,9 +371,11 @@ class Request {
         std::string getLink(std::string const &dirEntry, std::string const &dirName) {
             std::stringstream   ss;
             std::string slash = "/";
-            if (dirName == "/./")
+            std::cout << "dirname : [" << dirName << "]\n";
+            std::cout << "direntry : [" << dirEntry << "]\n";
+            if (dirName[dirName.size() - 1] == '/')
                 slash = "";
-            ss << "\t\t<p><a href=\"" << dirName + slash + dirEntry + "\">" + dirEntry + "</a></p>\n";
+            ss << "\t\t<p><a href=\"" << dirEntry + "\">" + dirEntry + "</a></p>\n";
             return ss.str();
         }
 
