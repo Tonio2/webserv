@@ -92,6 +92,8 @@ class Request {
         }
 
         void generate_response(int code) {
+            if (_protocol != "HTTP/1.1")
+                _protocol = "HTTP/1.0";
             _code = code;
             read_file(_vserv_conf._error_pages[code]);
             format_response();
@@ -156,10 +158,12 @@ class Request {
                 throw 400;
             
             _url = percent_decode(_url);
-            std::cout << "URL : " << _url << "\n";
             
             if (_protocol != "HTTP/1.1" && _protocol != "HTTP/1.0")
+            {
+                _protocol = "HTTP/1.0";
                 throw 400;
+            }
             
             size_t pos4;
             std::string key;
@@ -251,7 +255,6 @@ class Request {
             else
                 _location.replace(0, route_conf._match.size(), route_conf._root);
             _location = "." + _location;
-            std::cout << "LOCATION : " << _location << "\n";
             //TODO location
 
             if (_location == "./html/upload.py")
@@ -398,8 +401,6 @@ class Request {
             std::string slash = "/";
             if (dirName[dirName.size() - 1] == '/')
                 slash = "";
-            std::cout << "dirname : [" << dirName << "]\n";
-            std::cout << "direntry : [" << dirEntry << "]\n";
             ss << "\t\t<p><a href=\"" << dirName << slash << dirEntry + "\">" + dirEntry + "</a></p>\n";
             return ss.str();
         }
