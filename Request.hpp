@@ -118,6 +118,24 @@ class Request {
             _raw = head + "\r\n\r\n" + body + "\r\n\r\n";
         }
 
+        std::string percent_decode(std::string str) {
+            std::string ret;
+            size_t str_i = 0;
+
+            while (str_i < str.size())
+            {
+                if (str[str_i] == '%')
+                {
+                    long int li = strtol(str.substr(str_i + 1, 2).c_str(), 0, 16);
+                    str_i += 3;
+                    ret += li;
+                }
+                else
+                    ret += str[str_i++];
+            }
+            return (ret);
+        }
+
         void parse_request() {
             size_t pos = 0;
             std::string line = getline(_raw, pos);
@@ -136,6 +154,9 @@ class Request {
             
             if (_url[0] != '/')
                 throw 400;
+            
+            _url = percent_decode(_url);
+            std::cout << "URL : " << _url << "\n";
             
             if (_protocol != "HTTP/1.1" && _protocol != "HTTP/1.0")
                 throw 400;
@@ -157,7 +178,9 @@ class Request {
             }
 
             if (pos != std::string::npos)
-                _body = _raw.substr(pos);
+                _req_body = _raw.substr(pos);
+            
+            _req_body = percent_decode(_req_body);
 
             if (_url.find("?", 0) != std::string::npos)
             {
@@ -188,7 +211,7 @@ class Request {
             if (_raw.find("Transfer-Encoding: chunked") != std::string::npos && _raw.find("Transfer-Encoding: chunked") < _raw.find("\r\n\r\n"))
                 processChunk();
 
-            _req_body = _raw.substr(_raw.find("\r\n\r\n") + 4);
+            // _req_body = _raw.substr(_raw.find("\r\n\r\n") + 4);
 
             parse_request();
             return (0);
@@ -221,12 +244,14 @@ class Request {
                 }
             }
             Route route_conf = _vserv_conf._routes_conf[_conf_id];
-
+            
+            _location = _url;
             if (route_conf._match == "/")
-                _url.replace(0, 1, route_conf._root + "/");
+                _location.replace(0, 1, route_conf._root + "/");
             else
-                _url.replace(0, route_conf._match.size(), route_conf._root);
-            _location = "." + _url;
+                _location.replace(0, route_conf._match.size(), route_conf._root);
+            _location = "." + _location;
+            std::cout << "LOCATION : " << _location << "\n";
             //TODO location
 
             if (_location == "./html/upload.py")
@@ -338,7 +363,7 @@ class Request {
         }
 
         void generate_autoindex(std::string location) {
-            std::string dirName(location);
+            std::string dirName(_url);
             DIR *dir = opendir(location.c_str());
             _headers["Content-Type"] = "text/html";
             _body =\
@@ -368,14 +393,14 @@ class Request {
             _code = 200;
         }
 
-        std::string getLink(std::string const &dirEntry, std::string const &dirName) {
+        std::string getLink(std::string const &dirEntry, std::string dirName) {
             std::stringstream   ss;
             std::string slash = "/";
-            std::cout << "dirname : [" << dirName << "]\n";
-            std::cout << "direntry : [" << dirEntry << "]\n";
             if (dirName[dirName.size() - 1] == '/')
                 slash = "";
-            ss << "\t\t<p><a href=\"" << dirEntry + "\">" + dirEntry + "</a></p>\n";
+            std::cout << "dirname : [" << dirName << "]\n";
+            std::cout << "direntry : [" << dirEntry << "]\n";
+            ss << "\t\t<p><a href=\"" << dirName << slash << dirEntry + "\">" + dirEntry + "</a></p>\n";
             return ss.str();
         }
 

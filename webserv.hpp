@@ -6,6 +6,7 @@
 #include <sstream> 
 #include <fstream>
 #include <string.h>
+#include <stdlib.h>
 
 //network
 #include <netinet/in.h>
